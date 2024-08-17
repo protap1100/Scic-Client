@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the 
+    // Connect the client to the
     await client.connect();
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
@@ -38,12 +38,21 @@ async function run() {
         limit = 9,
         search = "",
         categoryName = "",
+        publisher = "",
         sort = "asc",
         minPrice = 0,
-        maxPrice = Infinity,
+        maxPrice = Number.MAX_VALUE,
       } = req.query;
     
+      // console.log('Search:', search);
+      // console.log('Category Name:', categoryName);
+      // console.log('Publisher:', publisher);
+    
       const query = {};
+    
+      if (publisher && publisher !== "All") {
+        query.publisher = publisher; 
+      }
     
       if (search) {
         query.title = { $regex: search, $options: "i" };
@@ -54,23 +63,34 @@ async function run() {
       }
     
       query.price = {
-        $gte: parseFloat(minPrice), 
-        $lte: parseFloat(maxPrice), 
+        $gte: parseFloat(minPrice),
+        $lte: parseFloat(maxPrice),
       };
     
-      const sortOrder = sort === "asc" ? 1 : -1;
+      const sortOptions = {};
+      if (sort === "priceAsc" || sort === "priceDesc") {
+        sortOptions.price = sort === "priceAsc" ? 1 : -1;
+      }
+      if (sort === "dateAsc" || sort === "dateDesc") {
+        sortOptions.added_on = sort === "dateAsc" ? 1 : -1;
+      }
     
-      const books = await bookCollection
-        .find(query)
-        .sort({ price: sortOrder })
-        .skip((page - 1) * parseInt(limit))
-        .limit(parseInt(limit))
-        .toArray();
+      try {
+        const books = await bookCollection
+          .find(query)
+          .sort(sortOptions)
+          .skip((page - 1) * parseInt(limit))
+          .limit(parseInt(limit))
+          .toArray();
     
-      const totalBooks = await bookCollection.countDocuments(query);
-      const totalPages = Math.ceil(totalBooks / limit);
+        const totalBooks = await bookCollection.countDocuments(query);
+        const totalPages = Math.ceil(totalBooks / limit);
     
-      res.send({ books, totalPages });
+        res.send({ books, totalPages });
+      } catch (error) {
+        console.error("Error fetching books:", error);
+        res.status(500).send({ error: "Failed to fetch books" });
+      }
     });
     
   } catch (error) {
@@ -78,7 +98,7 @@ async function run() {
   }
 }
 
-// Call run to initialize MongoDB connection and start 
+// Call run to initialize MongoDB connection and start
 run();
 
 app.get("/", (req, res) => {
