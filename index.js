@@ -40,32 +40,43 @@ async function run() {
         search = "",
         categoryName = "",
         sort = "asc",
+        minPrice = 0,
+        maxPrice = Infinity,
       } = req.query;
-
+    
       const query = {};
-
+    
+      // Search by title
       if (search) {
         query.title = { $regex: search, $options: "i" };
       }
-
+    
+      // Filter by category
       if (categoryName && categoryName !== "All") {
         query.categoryName = categoryName;
       }
-
+    
+      // Filter by price range
+      query.price = {
+        $gte: parseFloat(minPrice), // Greater than or equal to minPrice
+        $lte: parseFloat(maxPrice), // Less than or equal to maxPrice
+      };
+    
       const sortOrder = sort === "asc" ? 1 : -1;
-
+    
       const books = await bookCollection
         .find(query)
         .sort({ price: sortOrder })
         .skip((page - 1) * parseInt(limit))
         .limit(parseInt(limit))
         .toArray();
-
+    
       const totalBooks = await bookCollection.countDocuments(query);
       const totalPages = Math.ceil(totalBooks / limit);
-
+    
       res.send({ books, totalPages });
     });
+    
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error);
   }
