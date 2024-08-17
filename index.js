@@ -32,7 +32,6 @@ async function run() {
     const database = client.db("Scic-Task");
     const bookCollection = database.collection("Books");
 
-    // API route to get all books with pagination, search, filter, and sorting
     app.get("/books", async (req, res) => {
       const {
         page = 1,
@@ -46,20 +45,17 @@ async function run() {
     
       const query = {};
     
-      // Search by title
       if (search) {
         query.title = { $regex: search, $options: "i" };
       }
     
-      // Filter by category
       if (categoryName && categoryName !== "All") {
         query.categoryName = categoryName;
       }
     
-      // Filter by price range
       query.price = {
-        $gte: parseFloat(minPrice), // Greater than or equal to minPrice
-        $lte: parseFloat(maxPrice), // Less than or equal to maxPrice
+        $gte: parseFloat(minPrice), 
+        $lte: parseFloat(maxPrice), 
       };
     
       const sortOrder = sort === "asc" ? 1 : -1;
