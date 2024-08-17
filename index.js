@@ -78,7 +78,7 @@ async function run() {
   }
 }
 
-// Call run to initialize MongoDB connection and start API server
+// Call run to initialize MongoDB connection and start 
 run();
 
 app.get("/", (req, res) => {
