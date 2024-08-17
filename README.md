@@ -23,7 +23,7 @@ This project is an API for managing books using Node.js, Express, and MongoDB. I
 1. **Clone the Repository**
 
     ```bash
-    [git clone https://github.com/your-username/your-repo.git](https://github.com/protap1100/Scic-Server)
+    https://github.com/protap1100/Scic-Server
     cd your-repo
     ```
 
