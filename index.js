@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server
+    // Connect the client to the 
     await client.connect();
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
